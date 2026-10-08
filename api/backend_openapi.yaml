@@ -1,0 +1,421 @@
+openapi: 3.0.3
+info:
+  title: Baby Tracker API
+  version: 0.1.0
+paths:
+  /api/baby/:
+    post:
+      operationId: baby_create
+      description: |-
+        This is the endpoint for creating a new baby. The baby will be
+        assigned to the user that creates the baby.
+      tags:
+      - baby
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Baby'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Baby'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Baby'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baby'
+          description: ''
+  /api/baby/{baby_id}/event/:
+    get:
+      operationId: baby_event_list
+      description: This endpoint will return a list of the matching events
+      parameters:
+      - in: query
+        name: asc
+        schema:
+          type: boolean
+        required: true
+      - in: path
+        name: baby_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: type
+        schema:
+          type: array
+          items:
+            enum:
+            - bottle_feed
+            - breast_feed
+            - diaper
+            type: string
+            description: |-
+              * `bottle_feed` - bottle_feed
+              * `breast_feed` - breast_feed
+              * `diaper` - diaper
+      tags:
+      - baby
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+          description: ''
+    post:
+      operationId: baby_event_create
+      parameters:
+      - in: path
+        name: baby_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - baby
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NewEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewEvent'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewEvent'
+          description: ''
+  /api/token/:
+    post:
+      operationId: token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/users/:
+    post:
+      operationId: users_create
+      description: This endpoint is for creating a new user
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+components:
+  schemas:
+    Baby:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+      - name
+    BottleFeed:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          default: ''
+          maxLength: 1000
+        data:
+          $ref: '#/components/schemas/BottleFeedData'
+      required:
+      - created_at
+      - data
+    BottleFeedData:
+      type: object
+      properties:
+        amount:
+          type: integer
+          maximum: 500
+          minimum: 0
+        contents:
+          $ref: '#/components/schemas/BottleFeedDataContentsEnum'
+      required:
+      - amount
+      - contents
+    BottleFeedDataContentsEnum:
+      enum:
+      - formula
+      - breast_milk
+      type: string
+      description: |-
+        * `formula` - formula
+        * `breast_milk` - breast_milk
+    BreastFeed:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          default: ''
+          maxLength: 1000
+        data:
+          $ref: '#/components/schemas/BreastFeedData'
+      required:
+      - created_at
+      - data
+    BreastFeedData:
+      type: object
+      properties:
+        left_time:
+          type: integer
+          minimum: 0
+        right_time:
+          type: integer
+          minimum: 0
+      required:
+      - left_time
+      - right_time
+    ColourEnum:
+      enum:
+      - black
+      - green
+      - yellow
+      - red
+      type: string
+      description: |-
+        * `black` - black
+        * `green` - green
+        * `yellow` - yellow
+        * `red` - red
+    CompositionEnum:
+      enum:
+      - runny
+      - mucousy
+      - mushy
+      - solid
+      - pebbles
+      type: string
+      description: |-
+        * `runny` - runny
+        * `mucousy` - mucousy
+        * `mushy` - mushy
+        * `solid` - solid
+        * `pebbles` - pebbles
+    Diaper:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          default: ''
+          maxLength: 1000
+        data:
+          $ref: '#/components/schemas/DiaperData'
+      required:
+      - created_at
+      - data
+    DiaperData:
+      type: object
+      properties:
+        contents:
+          $ref: '#/components/schemas/DiaperDataContentsEnum'
+        colour:
+          $ref: '#/components/schemas/ColourEnum'
+        composition:
+          $ref: '#/components/schemas/CompositionEnum'
+        blowout:
+          type: boolean
+        diaper_rash:
+          type: boolean
+      required:
+      - contents
+    DiaperDataContentsEnum:
+      enum:
+      - wet
+      - dirty
+      - dry
+      type: string
+      description: |-
+        * `wet` - wet
+        * `dirty` - dirty
+        * `dry` - dry
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+        notes:
+          type: string
+          maxLength: 1000
+        data: {}
+        baby_id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          type: string
+      required:
+      - baby_id
+      - created_at
+      - type
+    NewEvent:
+      oneOf:
+      - $ref: '#/components/schemas/BottleFeed'
+      - $ref: '#/components/schemas/BreastFeed'
+      - $ref: '#/components/schemas/Diaper'
+      discriminator:
+        propertyName: type
+        mapping:
+          bottle_feed: '#/components/schemas/BottleFeed'
+          breast_feed: '#/components/schemas/BreastFeed'
+          diaper: '#/components/schemas/Diaper'
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - email
+      - id
+      - password
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
