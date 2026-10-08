@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Nunito", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --color-cream: #fff7f2;
+  --color-blush: #ffe1ea;
+  --color-berry: #c4476a;
+  --color-ink: #4c3340;
 }
 
 @layer base {
@@ -13,6 +17,8 @@
     min-height: 100%;
     margin: 0;
     font-family: var(--font-sans);
+    background-color: var(--color-cream);
+    background-image: linear-gradient(to bottom, var(--color-blush), var(--color-cream) 42%, #e0f2fe);
     -webkit-tap-highlight-color: transparent;
     text-size-adjust: 100%;
   }

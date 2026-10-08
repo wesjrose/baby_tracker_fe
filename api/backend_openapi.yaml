@@ -188,6 +188,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
+  /api/users/me/:
+    get:
+      operationId: users_me_retrieve
+      description: This endpoint returns the profile information of the authenticated
+        user
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
 components:
   schemas:
     Baby:
